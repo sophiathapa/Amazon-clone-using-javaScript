@@ -1,23 +1,37 @@
-import { cart } from "../data/cart.js";
+import { cart,removeFromCart } from "../data/cart.js";
 import { products } from "../data/products.js";
 import { formatCurrency } from "./utils/money.js";
 
 
 let cartSummaryHTML =  "";
 let paymentSummaryHTML = "";
+let productsCost = 0;
+let CostBeforeTax = 0;
+let price = 0;
+let cartQuantity  = 0;
+let shippingFee = 0;
+
 
 cart.forEach((cartItem)=>{
 
   let matchingProduct ;
+  cartQuantity += cartItem.quantity;
   const productId = cartItem.productId;
   products.forEach((product) =>{
     if (product.id === productId){
       matchingProduct = product;
     }
   })
-     
     
+  price = formatCurrency(matchingProduct.priceCents);
+   const price1 = cartItem.quantity*price ;
+  productsCost += price1;
+ 
 
+ const priceBeforeTax = shippingFee + productsCost;
+ const tax = priceBeforeTax *0.1;
+ const priceAfterTax = priceBeforeTax + tax ;
+  
 
        cartSummaryHTML += `
        <div class="cart-item-container">
@@ -40,10 +54,11 @@ cart.forEach((cartItem)=>{
                   <span>
                     Quantity: <span class="quantity-label">${cartItem.quantity}</span>
                   </span>
-                  <span class="update-quantity-link link-primary">
+                  <span class="update-quantity-link link-primary js-update-button">
                     Update
                   </span>
-                  <span class="delete-quantity-link link-primary">
+                  <span class="delete-quantity-link link-primary js-delete-button"
+                  data-product-id = "${matchingProduct.id}">
                     Delete
                   </span>
                 </div>
@@ -56,7 +71,7 @@ cart.forEach((cartItem)=>{
                 <div class="delivery-option">
                   <input type="radio" checked
                     class="delivery-option-input"
-                    name="delivery-option-1">
+                    name="delivery-option-${productId}">
                   <div>
                     <div class="delivery-option-date">
                       Tuesday, June 21
@@ -69,7 +84,7 @@ cart.forEach((cartItem)=>{
                 <div class="delivery-option">
                   <input type="radio"
                     class="delivery-option-input"
-                    name="delivery-option-1">
+                    name="delivery-option-${productId}">
                   <div>
                     <div class="delivery-option-date">
                       Wednesday, June 15
@@ -82,7 +97,7 @@ cart.forEach((cartItem)=>{
                 <div class="delivery-option">
                   <input type="radio"
                     class="delivery-option-input"
-                    name="delivery-option-1">
+                    name="delivery-option-${productId}">
                   <div>
                     <div class="delivery-option-date">
                       Monday, June 13
@@ -103,28 +118,28 @@ cart.forEach((cartItem)=>{
           </div>
 
           <div class="payment-summary-row">
-            <div>Items (3):</div>
-            <div class="payment-summary-money">$42.75</div>
+            <div>Items (${cartQuantity}):</div>
+            <div class="payment-summary-money">$${productsCost}</div>
           </div>
 
           <div class="payment-summary-row">
             <div>Shipping &amp; handling:</div>
-            <div class="payment-summary-money">$4.99</div>
+            <div class="payment-summary-money">$${shippingFee}</div>
           </div>
 
           <div class="payment-summary-row subtotal-row">
             <div>Total before tax:</div>
-            <div class="payment-summary-money">$47.74</div>
+            <div class="payment-summary-money">$${priceBeforeTax}</div>
           </div>
 
           <div class="payment-summary-row">
             <div>Estimated tax (10%):</div>
-            <div class="payment-summary-money">$4.77</div>
+            <div class="payment-summary-money">$${tax}</div>
           </div>
 
           <div class="payment-summary-row total-row">
             <div>Order total:</div>
-            <div class="payment-summary-money">$52.51</div>
+            <div class="payment-summary-money">$${priceAfterTax}</div>
           </div>
 
           <button class="place-order-button button-primary">
@@ -135,6 +150,15 @@ cart.forEach((cartItem)=>{
 
   document.querySelector(".order-summary").innerHTML = cartSummaryHTML;
   document.querySelector(".payment-summary").innerHTML = paymentSummaryHTML;
+
+  document.querySelectorAll(".js-delete-button").forEach((deleteButton)=>{
+    deleteButton.addEventListener("click",()=>{
+     const productId = deleteButton.dataset.productId;
+      removeFromCart(productId);
+    
+     console.log(cart);
+    })
+  });
 
 
 
