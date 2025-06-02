@@ -5,22 +5,38 @@ import { loadCart } from "../data/cart.js";
 // import '../data/cart-class.js';
 // import '../data/backend-practice.js';
 
+async function loadPage (){
+  
 
-//promise.all runs the async function at the same time
-Promise.all([
-  loadProductsFetch(),
+  await loadProductsFetch()
 
-new Promise((resolve) => {
+  await new Promise((resolve) => {
       loadCart(() => {
         resolve();
       });
     })
-
-]).then((values)=>{
-  console.log(values);
   renderOrderSummary();
-    renderPaymentSummary();
-});
+  renderPaymentSummary();
+}
+
+loadPage()
+
+
+// //promise.all runs the async function at the same time
+// Promise.all([
+//   loadProductsFetch(),
+
+// new Promise((resolve) => {
+//       loadCart(() => {
+//         resolve();
+//       });
+//     })
+
+// ]).then((values)=>{
+//   console.log(values);
+//   renderOrderSummary();
+//     renderPaymentSummary();
+// });
 
 
 //using promise
